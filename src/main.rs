@@ -11,7 +11,7 @@ fn main() -> std::io::Result<()> {
     let mut handles = Vec::with_capacity(CLIENTS as usize);
 
     // Allocate space for storing message passing channels.
-    let mut channels: Vec<Receiver<u128>> = Vec::with_capacity(CLIENTS as usize);
+    let mut channels: Vec<Receiver<BenchmarkInfo>> = Vec::with_capacity(CLIENTS as usize);
     
     // Begin stopwatch for throughput.
     let throughput = Instant::now();
@@ -39,17 +39,13 @@ fn main() -> std::io::Result<()> {
             let mut buf_in = [0; 4];
             stream.read(&mut buf_in).unwrap();
 
-            // Store the threads turnaround time.
-            tx.send(turnaround_time.elapsed().as_millis()).unwrap();
-
-            // Build server ip from response.
-            let ip_v4 = Ipv4Addr::from(buf_in);
-            let ip_server = IpAddr::V4(ip_v4);
-
-            println!("Client: {:?}, Server: {:?}, Turnaround: {}", 
-                stream.local_addr().unwrap(),
-                ip_server,
-                turnaround_time.elapsed().as_millis());
+            // Store the threads benchmark info.
+            let bi_client = stream.local_addr().unwrap().to_string();
+            let bi_server = buf_in;
+            let bi_tat = turnaround_time.elapsed().as_millis();
+            let bi = BenchmarkInfo::new(bi_client, bi_server, bi_tat);
+            println!("Benchmark Info: {:?}", bi);
+            tx.send(bi).unwrap();
         }));
     }
     
@@ -66,7 +62,7 @@ fn main() -> std::io::Result<()> {
     let total_tat = channels
         .iter()
         .map(|x| x.recv().unwrap())
-        .fold(0, |acc, x| acc + x);
+        .fold(0, |acc, x| acc + x.turnaround_time);
     let avg_tat = total_tat / CLIENTS;
 
     println!("Total time: {} Throughput: {} Average Turnaround Time {}", total_time, throughput, avg_tat);
@@ -74,6 +70,7 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+#[derive(Debug)]
 struct BenchmarkInfo {
     client: String,
     server_bytes: String,
