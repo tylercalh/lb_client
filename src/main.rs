@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::io::{Read, Write};
 use std::net::{IpAddr, Ipv4Addr, TcpStream};
 use std::sync::mpsc::{self, Receiver};
@@ -5,41 +6,45 @@ use std::thread;
 use std::time::Instant;
 use std::env;
 
-const CLIENTS: u128 = 5;
-const HOST: &str = "127.0.0.1:8085";
 fn main() -> std::io::Result<()> {
+    const CLIENTS: u128 = 5;
+    const HOST: &str = "127.0.0.1:8085";
+
     // Collect command line args.
-    let args: Vec<String> = env::args().collect();
+    let mut args = env::args().collect::<VecDeque<String>>();
     
     // No error Checking...
-    let host_ip = match args.get(1) {
+    let host_ip = match args.pop_front() {
         Some(ip) => ip,
-        None => HOST,
+        None => String::from(HOST),
     };
-    let num_clients = match args.get(2) {
+    let num_clients = match args.pop_front() {
         Some(n) => n.parse::<u128>().unwrap(),
         None => CLIENTS,
     };
 
-    let mut handles = Vec::with_capacity(CLIENTS as usize);
+    let mut handles = Vec::with_capacity(num_clients as usize);
 
     // Allocate space for storing message passing channels.
-    let mut channels: Vec<Receiver<BenchmarkInfo>> = Vec::with_capacity(CLIENTS as usize);
+    let mut channels: Vec<Receiver<BenchmarkInfo>> = Vec::with_capacity(num_clients as usize);
     
     // Begin stopwatch for throughput.
     let throughput = Instant::now();
     
     // Create threads for each client.
-    for _i in 0..CLIENTS {
+    for _i in 0..num_clients {
         
         // Create a channel for the thread to send its turnaround time.
         let (tx, rx) = mpsc::channel();
         channels.push(rx);
 
+        // Each thread needs its own copy of the host ip.
+        let thread_host_ip = host_ip.clone();
+
         // Spawn the client threads.
         handles.push( thread::spawn(move || {
             // Connect to the host.
-            let mut stream = TcpStream::connect(HOST)
+            let mut stream = TcpStream::connect(thread_host_ip)
                 .unwrap();
             
             // Send a request to the host.
@@ -69,7 +74,7 @@ fn main() -> std::io::Result<()> {
 
     // Calculate throughput.
     let total_time = throughput.elapsed().as_millis();
-    let throughput = total_time / CLIENTS;
+    let throughput = total_time / num_clients;
 
     // Collect thread's benchmark info.
     let bis = channels
@@ -81,7 +86,7 @@ fn main() -> std::io::Result<()> {
     let total_tat = bis
         .iter()
         .fold(0, |acc, x| acc + x.turnaround_time);
-    let avg_tat = total_tat / CLIENTS;
+    let avg_tat = total_tat / num_clients;
 
     println!("Total time: {} Throughput: {} Average Turnaround Time {}", total_time, throughput, avg_tat);
     
