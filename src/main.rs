@@ -28,7 +28,7 @@ fn main() -> std::io::Result<()> {
                     "-c" => num_clients = args.pop_front().unwrap().parse::<u128>().unwrap(),
                     "-r" => req_clients = args.pop_front().unwrap().parse::<u8>().unwrap(),
                     _ => {
-                        println!("Could not find flag.");
+                        println!("Could not find flag {}.", arg);
                         return Ok(())
                     }
                 }
@@ -36,7 +36,7 @@ fn main() -> std::io::Result<()> {
             None => ()
         }
     }
-    println!("{} clients will request fib({}) from host {}", num_clients, req_clients, host_ip);
+    println!("{} clients requesting fib({}) from host {}...", num_clients, req_clients, host_ip);
 
     let mut handles = Vec::with_capacity(num_clients as usize);
 
