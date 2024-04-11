@@ -75,15 +75,17 @@ fn main() -> std::io::Result<()> {
 }
 
 struct BenchmarkInfo {
-    turnaround_time: u128,
+    client: String,
     server_bytes: [u8; 4],
+    turnaround_time: u128,
 }
 
 impl BenchmarkInfo {
-    fn new(turnaround_time: u128, server_bytes: [u8; 4]) -> Self {
+    fn new(client: String, server_bytes: [u8; 4], turnaround_time: u128) -> Self {
         Self {
-            turnaround_time: turnaround_time,
+            client: client,
             server_bytes: server_bytes,
+            turnaround_time: turnaround_time,
         }
     }
 }
