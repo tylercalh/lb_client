@@ -36,6 +36,7 @@ fn main() -> std::io::Result<()> {
             None => ()
         }
     }
+    println!("{} clients will request fib({}) from host {}", num_clients, req_clients, host_ip);
 
     let mut handles = Vec::with_capacity(num_clients as usize);
 
