@@ -73,3 +73,8 @@ fn main() -> std::io::Result<()> {
     
     Ok(())
 }
+
+struct BenchmarkInfo {
+    turnaround_time: u128,
+    server_bytes: [u8; 4],
+}
