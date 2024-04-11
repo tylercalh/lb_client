@@ -78,3 +78,12 @@ struct BenchmarkInfo {
     turnaround_time: u128,
     server_bytes: [u8; 4],
 }
+
+impl BenchmarkInfo {
+    fn new(turnaround_time: u128, server_bytes: [u8; 4]) -> Self {
+        Self {
+            turnaround_time: turnaround_time,
+            server_bytes: server_bytes,
+        }
+    }
+}
