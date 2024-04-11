@@ -58,10 +58,15 @@ fn main() -> std::io::Result<()> {
     let total_time = throughput.elapsed().as_millis();
     let throughput = total_time / CLIENTS;
 
-    // Read the turnaround times from the channels. Calculate the average.
-    let total_tat = channels
+    // Collect thread's benchmark info.
+    let bis = channels
         .iter()
         .map(|x| x.recv().unwrap())
+        .collect::<Vec<BenchmarkInfo>>();
+
+    // Read the turnaround times from the benchmark infos. Calculate the average.
+    let total_tat = bis
+        .iter()
         .fold(0, |acc, x| acc + x.turnaround_time);
     let avg_tat = total_tat / CLIENTS;
 
