@@ -76,15 +76,19 @@ fn main() -> std::io::Result<()> {
 
 struct BenchmarkInfo {
     client: String,
-    server_bytes: [u8; 4],
+    server_bytes: String,
     turnaround_time: u128,
 }
 
 impl BenchmarkInfo {
     fn new(client: String, server_bytes: [u8; 4], turnaround_time: u128) -> Self {
+        // Build server ip.
+        let ip_v4 = Ipv4Addr::from(server_bytes);
+        let ip = IpAddr::V4(ip_v4);
+
         Self {
             client: client,
-            server_bytes: server_bytes,
+            server_bytes: ip.to_string(),
             turnaround_time: turnaround_time,
         }
     }
