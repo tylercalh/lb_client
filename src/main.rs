@@ -78,7 +78,7 @@ fn main() -> std::io::Result<()> {
 #[derive(Debug)]
 struct BenchmarkInfo {
     client: String,
-    server_bytes: String,
+    server: String,
     turnaround_time: u128,
 }
 
@@ -90,7 +90,7 @@ impl BenchmarkInfo {
 
         Self {
             client: client,
-            server_bytes: ip.to_string(),
+            server: ip.to_string(),
             turnaround_time: turnaround_time,
         }
     }
