@@ -3,10 +3,23 @@ use std::net::{IpAddr, Ipv4Addr, TcpStream};
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
 use std::time::Instant;
+use std::env;
 
+const CLIENTS: u128 = 5;
+const HOST: &str = "127.0.0.1:8085";
 fn main() -> std::io::Result<()> {
-    const CLIENTS: u128 = 5;
-    const HOST: &str = "127.0.0.1:8085";
+    // Collect command line args.
+    let args: Vec<String> = env::args().collect();
+    
+    // No error Checking...
+    let host_ip = match args.get(1) {
+        Some(ip) => ip,
+        None => HOST,
+    };
+    let num_clients = match args.get(2) {
+        Some(n) => n.parse::<u128>().unwrap(),
+        None => CLIENTS,
+    };
 
     let mut handles = Vec::with_capacity(CLIENTS as usize);
 
