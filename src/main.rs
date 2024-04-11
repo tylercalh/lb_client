@@ -9,6 +9,7 @@ use std::env;
 fn main() -> std::io::Result<()> {
     const CLIENTS: u128 = 5;
     const HOST: &str = "127.0.0.1:8085";
+    const REQ: u8 = 40;
 
     // Collect command line args.
     let mut args = env::args().collect::<VecDeque<String>>();
@@ -49,7 +50,7 @@ fn main() -> std::io::Result<()> {
                 .unwrap();
             
             // Send a request to the host.
-            stream.write(&[40]).unwrap();
+            stream.write(&[REQ]).unwrap();
 
             // Begin stopwatch for turnaround time.
             let turnaround_time = Instant::now();
