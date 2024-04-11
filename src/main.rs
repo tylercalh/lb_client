@@ -44,7 +44,7 @@ fn main() -> std::io::Result<()> {
             let bi_server = buf_in;
             let bi_tat = turnaround_time.elapsed().as_millis();
             let bi = BenchmarkInfo::new(bi_client, bi_server, bi_tat);
-            println!("Benchmark Info: {:?}", bi);
+            println!("{:?}", bi);
             tx.send(bi).unwrap();
         }));
     }
