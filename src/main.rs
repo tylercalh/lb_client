@@ -16,14 +16,26 @@ fn main() -> std::io::Result<()> {
     args.pop_front();
     
     // No error Checking...
-    let host_ip = match args.pop_front() {
-        Some(ip) => ip,
-        None => String::from(HOST),
-    };
-    let num_clients = match args.pop_front() {
-        Some(n) => n.parse::<u128>().unwrap(),
-        None => CLIENTS,
-    };
+    let mut host_ip = String::from(HOST);
+    let mut num_clients = CLIENTS;
+    let mut req_clients = REQ;
+
+    while !args.is_empty() {
+        match args.pop_front() {
+            Some(arg) => {
+                match arg.as_ref() {
+                    "-ip" => host_ip = args.pop_front().unwrap(),
+                    "-c" => num_clients = args.pop_front().unwrap().parse::<u128>().unwrap(),
+                    "-r" => req_clients = args.pop_front().unwrap().parse::<u8>().unwrap(),
+                    _ => {
+                        println!("Could not find flag.");
+                        return Ok(())
+                    }
+                }
+            }
+            None => ()
+        }
+    }
 
     let mut handles = Vec::with_capacity(num_clients as usize);
 
@@ -50,7 +62,7 @@ fn main() -> std::io::Result<()> {
                 .unwrap();
             
             // Send a request to the host.
-            stream.write(&[REQ]).unwrap();
+            stream.write(&[req_clients]).unwrap();
 
             // Begin stopwatch for turnaround time.
             let turnaround_time = Instant::now();
