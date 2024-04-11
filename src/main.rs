@@ -12,6 +12,7 @@ fn main() -> std::io::Result<()> {
 
     // Collect command line args.
     let mut args = env::args().collect::<VecDeque<String>>();
+    args.pop_front();
     
     // No error Checking...
     let host_ip = match args.pop_front() {
